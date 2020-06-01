@@ -1,6 +1,31 @@
+
+<!-- TOC -->
+
+- [部署Zabbix-server监控主机](#%E9%83%A8%E7%BD%B2zabbix-server%E7%9B%91%E6%8E%A7%E4%B8%BB%E6%9C%BA)
+    - [版本4.0](#%E7%89%88%E6%9C%AC40)
+    - [设置yum源](#%E8%AE%BE%E7%BD%AEyum%E6%BA%90)
+- [MySQL部署](#mysql%E9%83%A8%E7%BD%B2)
+    - [建立Mysql用户组和用户](#%E5%BB%BA%E7%AB%8Bmysql%E7%94%A8%E6%88%B7%E7%BB%84%E5%92%8C%E7%94%A8%E6%88%B7)
+    - [创建相关的目录权限](#%E5%88%9B%E5%BB%BA%E7%9B%B8%E5%85%B3%E7%9A%84%E7%9B%AE%E5%BD%95%E6%9D%83%E9%99%90)
+    - [初始化数据库](#%E5%88%9D%E5%A7%8B%E5%8C%96%E6%95%B0%E6%8D%AE%E5%BA%93)
+    - [修改默认配置文件](#%E4%BF%AE%E6%94%B9%E9%BB%98%E8%AE%A4%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6)
+    - [使用systemd管理mysql](#%E4%BD%BF%E7%94%A8systemd%E7%AE%A1%E7%90%86mysql)
+    - [启动数据库](#%E5%90%AF%E5%8A%A8%E6%95%B0%E6%8D%AE%E5%BA%93)
+    - [检查状态](#%E6%A3%80%E6%9F%A5%E7%8A%B6%E6%80%81)
+    - [初始化密码](#%E5%88%9D%E5%A7%8B%E5%8C%96%E5%AF%86%E7%A0%81)
+    - [测试登录](#%E6%B5%8B%E8%AF%95%E7%99%BB%E5%BD%95)
+    - [导入数据](#%E5%AF%BC%E5%85%A5%E6%95%B0%E6%8D%AE)
+- [总结](#%E6%80%BB%E7%BB%93)
+- [Zabbixagent部署](#zabbixagent%E9%83%A8%E7%BD%B2)
+    - [安装](#%E5%AE%89%E8%A3%85)
+    - [zabbixget](#zabbixget)
+
+<!-- /TOC -->
+
 # 部署Zabbix-server监控主机
 
 ## 版本4.0
+
 ## 设置yum源
 ```
 1
@@ -22,6 +47,7 @@ enabled=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-ZABBIX
 gpgcheck=1
 ```
+
 # MySQL部署
 数据库版本5.7
 
@@ -38,8 +64,10 @@ source ~/.bash_profile
 [root@dev01 app]# mysql --version
 mysql  Ver 14.14 Distrib 5.7.20, for linux-glibc2.12 (x86_64) using  EditLine wrapper
 ```
+
 ## 建立Mysql用户组和用户
 useradd mysql
+
 ## 创建相关的目录权限
  chown -R mysql.mysql /data/app/*
 
@@ -66,6 +94,7 @@ drwxr-x--- 2 mysql mysql     4096 May 27 13:17 mysql
 drwxr-x--- 2 mysql mysql     8192 May 27 13:17 performance_schema
 drwxr-x--- 2 mysql mysql     8192 May 27 13:17 sys
 ```
+
 ## 修改默认配置文件
 
  vim /etc/my.cnf
@@ -92,6 +121,7 @@ socket=/data/app/data/mysql/mysql.sock
 [client]
 socket=/data/app/data/mysql/mysql.sock
 ```
+
 ## 使用systemd管理mysql
 vim /usr/lib/systemd/system/mysqld.service
 ```
@@ -109,17 +139,20 @@ Group=mysql
 ExecStart=/data/app/mysql/bin/mysqld --defaults-file=/etc/my.cnf
 LimitNOFILE = 5000
 ```
+
 ## 启动数据库
     第一次启动
     systemctl daemon reload
     systemctl start mysqld
     （其他）直接启动
     systemctl start mysqld
+
 ## 检查状态
 ps -ef|grep mysqld
 
 
 ss -tnl|grep 3306
+
 ## 初始化密码
 ```
 [root@dev01 app]# mysqladmin -uroot -p password xxxxx (直接回车)
@@ -127,6 +160,7 @@ Enter password: （回车，不要输入）
 mysqladmin: [Warning] Using a password on the command line interface can be insecure.
 Warning: Since password will be sent to server in plain text, use ssl connection to ensure password safety.
 ```
+
 ## 测试登录
 ```
 [root@dev01 app]# mysql -uroot -p
@@ -145,6 +179,7 @@ Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
 
 3306 [(none)]>
 ```
+
 ## 导入数据
 ```
 创建数据库
@@ -179,7 +214,9 @@ zabbix 比较适用于主机监控
 Prometheus 适用于应用监控
 他们都可以发送数据到grafana中
 通过不同的dashboard切换就可以查看不同的监控页面
+
 # Zabbixagent部署
+
 ## 安装
 ```
 yum install pcre* -y（可选）
@@ -194,6 +231,7 @@ agent工作模式
 zabbixserver 主动去连接xxxx:10050服务
  获取信息
 ```
+
 ## zabbix_get
 
 命令是在server端用来检查agent端的一个命令，在添加完主机或者触发器后，不能正常获得数据，可以用zabbix_get来检查能否采集到数据，以便判断问题症结所在。
