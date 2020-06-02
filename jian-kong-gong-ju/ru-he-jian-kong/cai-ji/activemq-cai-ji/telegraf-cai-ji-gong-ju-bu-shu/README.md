@@ -83,7 +83,7 @@ cpu_usage_guest_nice{cpu="cpu3",host="bsd-dev"} 0
     - targets: ['192.168.7.70:9090','192.168.8.15:9273']
 ```
 - 页面检查
-![target](img/target图示.png)
+![](img/target图示.png)
 - 查看有没有指标
 ![](img/2020-05-31-19-35-38.png)
 有值，表示测试验证成功
